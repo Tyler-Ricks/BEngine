@@ -1,0 +1,91 @@
+﻿{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "Debug-MSVC",
+            "displayName": "MSVC (Debug)",
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build/Debug-MSVC",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "Release-MSVC",
+            "displayName": "MSVC (Release)",
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build/Release-MSVC",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "Debug-Windows",
+            "displayName": "GCC (Debug) 13.2.0 x86_64-w64-mingw32 (ucrt64)",
+            "description": "Using compilers: C = C:\\msys64\\ucrt64\\bin\\gcc.exe, CXX = C:\\msys64\\ucrt64\\bin\\g++.exe",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/build/Debug-Windows",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "Release-Windows",
+            "displayName": "GCC (Release) 13.2.0 x86_64-w64-mingw32 (ucrt64)",
+            "description": "Using compilers: C = C:\\msys64\\ucrt64\\bin\\gcc.exe, CXX = C:\\msys64\\ucrt64\\bin\\g++.exe",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/build/Release-Windows",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+          "name": "Debug-Ubuntu",
+          "displayName": "GCC (Debug) Ubuntu",
+          "description": "Using GCC for Linux-based systems (Ubuntu)",
+          "generator": "Unix Makefiles",
+          "binaryDir": "${sourceDir}/build/Debug-Ubuntu",
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Debug"
+          }
+        },
+        {
+          "name": "Release-Ubuntu",
+          "displayName": "GCC (Release) Ubuntu",
+          "description": "Using GCC for Linux-based systems (Ubuntu)",
+          "generator": "Unix Makefiles",
+          "binaryDir": "${sourceDir}/build/Release-Ubuntu",
+          "cacheVariables": {
+            "CMAKE_BUILD_TYPE": "Release"
+          }
+        }
+    ],
+
+	"buildPresets": [
+    {
+        "name": "Debug-MSVC",
+        "configurePreset": "Debug-MSVC"
+    },
+    {
+        "name": "Release-MSVC",
+        "configurePreset": "Release-MSVC"
+    },
+    {
+        "name": "Debug-Windows",
+        "configurePreset": "Debug-Windows"
+    },
+    {
+        "name": "Release-Windows",
+        "configurePreset": "Release-Windows"
+    },
+    {
+        "name": "Debug-Ubuntu",
+        "configurePreset": "Debug-Ubuntu"
+    },
+    {
+        "name": "Release-Ubuntu",
+        "configurePreset": "Release-Ubuntu"
+    }
+]
+
+}
