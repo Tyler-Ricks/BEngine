@@ -36,42 +36,49 @@ namespace BAssert
 
 		// this may be unnecessary
 		Logger::get_instance().flush_log_queue();
+
+		// you triggered an assertion
 		DEBUG_BREAK();
 	}
 } // namespace BAssert
 
 #ifdef _DEBUG
-#define ASSERTIONS_ENABLED
+#define ASSERTIONS_ENABLED 1
+
+#else
+#define ASSERTIONS_ENABLED 0
+
+#endif // end _DEBUG
+
+
 #ifdef ASSERTIONS_ENABLED
 
 #define BASSERT(expr)														\
-{																			\
 	do																		\
 	{																		\
-		if(!expr)															\
+		if(!(expr))															\
 		{																	\
 			BAssert::report_assertion_failure(								\
-				#expr, __FILE__, __LINE__, __func__)						\
+				#expr, __FILE__, __LINE__, __func__);						\
 		}																	\
 	}																		\
 	while(0)																\
-}																			\
 
 
 #define BASSERT_MSG(expr, message)											\
-{																			\
 	do																		\
 	{																		\
-		if(!expr)															\
+		if(!(expr))															\
 		{																	\
 			BAssert::report_assertion_failure(								\
-				#expr, __FILE__, __LINE__, __func__, message)				\
+				#expr, __FILE__, __LINE__, __func__, message);				\
 		}																	\
 	}																		\
 	while(0)																\
-}																			\
-}																			\
+
+#else
+#define BASSERT(expr) ((void)0)
+#define BASSERT_MSG(expr, message) ((void)0)
 
 #endif // end ASSERTIONS_ENABLED
-#endif // end _DEBUG
 #endif // end ASSERTS_H
