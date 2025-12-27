@@ -60,7 +60,7 @@ private:
 int main()
 {
 	//Logger& logger = Logger::get_instance();
-	test_logger();
+	Tests::test_logger();
 
 	TriangleApp app;
 

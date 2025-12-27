@@ -9,6 +9,7 @@
 #include <condition_variable>
 #include <iomanip>
 #include <iostream>
+#include <format>
 #include <algorithm>
 #include "BTime.h"
 
@@ -26,7 +27,7 @@
 #endif // end _DEBUG
 
 
-enum class log_level 
+enum class LOG_LEVEL 
 {
 	FATAL,
 	ERROR,
@@ -37,14 +38,14 @@ enum class log_level
 	LOG_LEVEL_COUNT
 };
 
-const char* log_level_string(log_level lvl);
+const char* log_level_string(LOG_LEVEL lvl);
 
 
 constexpr size_t LOG_SIZE_T = 1024;
 
 struct Log
 {
-	log_level lvl;
+	LOG_LEVEL lvl;
 	ticks_ns timestamp_ns;
 	// TODO: frame number, timestamp, etc
 	char msg[LOG_SIZE_T];
@@ -66,39 +67,86 @@ class Logger {
 
 public:
 	static Logger& get_instance();
-	void log(log_level lvl, std::string_view msg);
+	void log(LOG_LEVEL lvl, std::string_view msg);
+
+	template<typename... Args>
+	void logf(LOG_LEVEL lvl, std::format_string<Args...> format, Args&&... args)
+	{
+		{
+			Log log_entry{};
+			log_entry.lvl = lvl;
+			log_entry.timestamp_ns = BTime::now_ns();
+
+			auto res = std::format_to_n(
+				log_entry.msg,
+				LOG_SIZE_T - 1,
+				format,
+				std::forward<Args>(args)...);
+
+			log_entry.msg[LOG_SIZE_T - 1] = '\0';
+
+			{
+				std::lock_guard<std::mutex> lock(queue_mtx);
+				log_queue.push_back(log_entry);
+				wait_var.notify_one();
+			}
+		}
+	}
+
 	void flush_log_queue();
 
 };
 
-#define LOG_FATAL(message) Logger::get_instance().log(log_level::FATAL, message)
-#define LOG_ERROR(message) Logger::get_instance().log(log_level::ERROR, message)
+
+//, makes sure the comma is left out in case there are no args
+#define LOGF(lvl, message, ...)												\
+	Logger::get_instance().logf(lvl, message, __VA_ARGS__)					\
+
+
+#define LOG_FATAL(message, ...)												\
+	Logger::get_instance().logf(LOG_LEVEL::FATAL,							\
+								message, __VA_ARGS__)						\
+
+#define LOG_ERROR(message, ...)												\
+	Logger::get_instance().logf(LOG_LEVEL::ERROR,							\
+								message, __VA_ARGS__)						\
+
 
 #if LOG_WARN_ENABLED
-#define LOG_WARN(message) Logger::get_instance().log(log_level::WARN, message)
+#define LOG_WARN(message, ...)												\
+	Logger::get_instance().logf(LOG_LEVEL::WARN,							\
+								message, __VA_ARGS__)						\
 
 #else
-#define LOG_WARN(message)
+#define LOG_WARN(message, ...) ((void)0)
 
 #endif // end LOG_WARN_ENABLED
 
 
 #if LOG_INFO_ENABLED
-#define LOG_INFO(message) Logger::get_instance().log(log_level::INFO, message)
+#define LOG_INFO(message, ...)												\
+	Logger::get_instance().logf(LOG_LEVEL::INFO,							\
+								message, __VA_ARGS__)						\
 
 #else
-#define LOG_INFO(message)
+#define LOG_INFO(message, ...)((void)0)
 
 #endif // end LOG_INFO_ENABLED
 
 
 #ifdef _DEBUG
-#define LOG_DEBUG(message) Logger::get_instance().log(log_level::DEBUG, message)
-#define LOG_TRACE(message) Logger::get_instance().log(log_level::TRACE, message)
+
+#define LOG_DEBUG(message, ...)												\
+	Logger::get_instance().logf(LOG_LEVEL::DEBUG,							\
+								message, __VA_ARGS__)						\
+
+#define LOG_TRACE(message, ...)												\
+	Logger::get_instance().logf(LOG_LEVEL::TRACE,							\
+								message, __VA_ARGS__)						\
 
 #else
-#define LOG_DEBUG(message)
-#define LOG_TRACE(message)
+#define LOG_DEBUG(message, ...)((void)0)
+#define LOG_TRACE(message, ...)((void)0)
 
 #endif // end _DEBUG
 
